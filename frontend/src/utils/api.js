@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_ORIGIN = "http://localhost:8000";
+export const API_ORIGIN = "https://readcycle-b9ls.onrender.com";
 
 const API = axios.create({
     baseURL: `${API_ORIGIN}/api/v1`,
