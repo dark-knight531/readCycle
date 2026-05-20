@@ -2,12 +2,12 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext.jsx";
-import Home from "./pages/Home.jsx";
+import Home from "./pages/home.jsx";
 import Register from "./pages/Register.jsx";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/dashboard.jsx";
 import BookDetails from "./pages/BookDetails.jsx";
-import ListBook from "./pages/ListBook";
+import ListBook from "./pages/ListBook.jsx";
 import MyBooks from "./pages/MyBooks.jsx";
 
 function App() {
