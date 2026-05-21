@@ -40,11 +40,13 @@ const generateAccessAndRefreshToken = async (userId) => {
     }
 };
 
-// 🌟 THE UNIVERSAL COOKIE OPTIONS (Fixes the Chrome Block) 🌟
+// Cookies for localhost; Bearer token in Authorization header is used for Vercel + Render
+const isProduction = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
     httpOnly: true,
-    secure: false, // Keep false for localhost testing
-    sameSite: "lax" // 👈 THIS IS THE MAGIC KEY! It allows cross-port cookies to be sent safely.
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
 };
 
 
