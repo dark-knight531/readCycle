@@ -117,7 +117,7 @@ const ListBook = () => {
         return;
       }
       if (!err.response) {
-        setError("Cannot reach server. Is the backend running on port 8000?");
+        setError("Cannot reach the server. Check your internet connection and API URL.");
         return;
       }
       setError(err.response?.data?.message || "Failed to list book. Try again.");

@@ -1,6 +1,6 @@
 // src/contexts/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from "react";
-import API from "../utils/api.js";
+import API, { setStoredToken, getStoredToken, clearStoredToken } from "../utils/api.js";
 
 const AuthContext = createContext(null);
 
@@ -8,40 +8,47 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Automatically check if a user is already logged in when the app loads
   useEffect(() => {
     const checkCurrentUser = async () => {
+      const token = getStoredToken();
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await API.get("/users/current-user");
-        
+
         if (response.data?.success) {
           const activeUser = response.data.data?.user || response.data.data;
           if (activeUser && (activeUser._id || activeUser.emailID)) {
             setUser(activeUser);
           } else {
+            clearStoredToken();
             setUser(null);
           }
         } else {
+          clearStoredToken();
           setUser(null);
         }
-      } catch (error) {
-        // If the cookie is expired or missing, ensure state is clean
+      } catch {
+        clearStoredToken();
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
-    
+
     checkCurrentUser();
   }, []);
 
-  // Secure Registration Pipeline
   const register = async (fullName, email, mobileNumber, password) => {
     try {
       const response = await API.post("/users/register", {
         fullName,
         email,
-        mobileNumber, 
+        mobileNumber,
         password,
       });
       return response.data;
@@ -50,15 +57,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Secure Session Login Pipeline
   const login = async (email, password) => {
     try {
       const response = await API.post("/users/login", { email, password });
-      
+
       if (response.data?.success) {
-        // Safe extraction matching your Network tab screenshot
-        const loggedInUser = response.data.data.user || response.data.data;
-        setUser(loggedInUser); 
+        const payload = response.data.data;
+        const loggedInUser = payload?.user || payload;
+        const accessToken = payload?.accessToken;
+
+        if (accessToken) {
+          setStoredToken(accessToken);
+        }
+        setUser(loggedInUser);
       }
       return response.data;
     } catch (error) {
@@ -66,14 +77,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Active Session Revocation (Logout)
   const logout = async () => {
     try {
       await API.post("/users/logout");
     } catch (error) {
       console.error("Backend logout error sync:", error);
     } finally {
-      setUser(null); 
+      clearStoredToken();
+      setUser(null);
     }
   };
 
